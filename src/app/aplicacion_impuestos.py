@@ -72,3 +72,7 @@ class AplicacionImpuestos:
         # Mostrar datos cargados
         print("\n=== DATOS RECUPERADOS ===")
         self.mostrar_impuestos()
+
+if __name__ == "__main__":
+    app = AplicacionImpuestos()
+    app.ejecutar()

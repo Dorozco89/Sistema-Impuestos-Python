@@ -1,16 +1,15 @@
 from typing import List
 
+from src.modelo.contribuyente import Contribuyente
 from src.modelo.persona_natural import PersonaNatural
 from src.modelo.empresa import Empresa
 from src.modelo.trabajador_independiente import TrabajadorIndependiente
-from src.modelo.contribuyente import Contribuyente
+from src.servicio.fabrica_contribuyentes import FabricaContribuyentes
 
 
 class GestorArchivos:
-     
 
     def guardar_objetos(self, ruta: str, contribuyentes: List[Contribuyente]) -> None:
-         
         with open(ruta, "w", encoding="utf-8") as archivo:
             for contribuyente in contribuyentes:
 
@@ -48,44 +47,22 @@ class GestorArchivos:
                 archivo.write(linea + "\n")
 
     def leer_objetos(self, ruta: str) -> List[Contribuyente]:
-         
         contribuyentes: List[Contribuyente] = []
 
         with open(ruta, "r", encoding="utf-8") as archivo:
             for linea in archivo:
                 datos = linea.strip().split(";")
 
+                if not datos or len(datos) < 2:
+                    continue
+
                 tipo = datos[0]
+                valores = datos[1:]
 
-                if tipo == "PERSONA":
-                    contribuyentes.append(
-                        PersonaNatural(
-                            datos[1],
-                            datos[2],
-                            float(datos[3]),
-                            float(datos[4])
-                        )
-                    )
-
-                elif tipo == "EMPRESA":
-                    contribuyentes.append(
-                        Empresa(
-                            datos[1],
-                            datos[2],
-                            float(datos[3]),
-                            float(datos[4]),
-                            float(datos[5])
-                        )
-                    )
-
-                elif tipo == "INDEPENDIENTE":
-                    contribuyentes.append(
-                        TrabajadorIndependiente(
-                            datos[1],
-                            datos[2],
-                            float(datos[3]),
-                            float(datos[4])
-                        )
-                    )
+                try:
+                    contribuyente = FabricaContribuyentes.crear_contribuyente(tipo, valores)
+                    contribuyentes.append(contribuyente)
+                except ValueError as e:
+                    print(f"Error al procesar línea: {linea.strip()} -> {e}")
 
         return contribuyentes
